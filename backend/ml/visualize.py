@@ -4,9 +4,10 @@
 - 이상치는 타입별로 다른 색 점으로 표시
 """
 
-import pandas as pd
-import matplotlib.pyplot as plt
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
 
 DATA_PATH = Path(__file__).parent / "data" / "synthetic_timeseries.csv"
 

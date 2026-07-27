@@ -5,9 +5,10 @@
 - 결과: CSV 저장 (timestamp, value, is_anomaly, anomaly_type)
 """
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 # 재현 가능하게 랜덤 시드 고정 - 매번 같은 데이터가 나오게 함
 np.random.seed(42)

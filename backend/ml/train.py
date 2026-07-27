@@ -4,12 +4,12 @@ Isolation Forest로 이상탐지 모델 학습 + 평가
 - 이미 정답(is_anomaly)을 알고 있으니, 모델이 얼마나 잘 맞췄는지도 채점
 """
 
-import pandas as pd
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
 from sklearn.ensemble import IsolationForest
 from sklearn.metrics import classification_report, confusion_matrix
-
 
 DATA_PATH = Path(__file__).parent / "data" / "synthetic_timeseries.csv"
 
