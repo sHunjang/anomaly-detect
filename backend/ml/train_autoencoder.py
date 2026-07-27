@@ -4,6 +4,7 @@ Autoencoder 학습 및 평가
 - 학습이 끝나면 전체 데이터(정상+이상치)를 넣어보고, 복원 오차가 큰 것을 이상치로 판단
 """
 
+import random
 from pathlib import Path
 
 import numpy as np
@@ -15,6 +16,15 @@ from sklearn.preprocessing import StandardScaler
 from torch import nn
 
 DATA_PATH = Path(__file__).parent / "data" / "synthetic_timeseries.csv"
+
+
+def set_seed(seed: int = 42):
+    """실행할 때마다 같은 결과가 나오도록 모든 랜덤 요소를 고정"""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.backends.mps.is_available():
+        torch.mps.manual_seed(seed)
 
 
 def get_device() -> torch.device:
@@ -124,12 +134,14 @@ def evaluate(df: pd.DataFrame, model: AnomalyAutoencoder, X: np.ndarray, device:
 
         detected_ratio = subset["predicted_anomaly"].mean()
 
-        print(f"{anomaly_type}: {detected_ratio:.1f} 탐지됨 (총 {len(subset)}개 중)")
+        print(f"{anomaly_type}: {detected_ratio:.1%} 탐지됨 (총 {len(subset)}개 중)")
 
     return df
 
 
 if __name__ == "__main__":
+
+    set_seed()
 
     device = get_device()
     print(f"사용 장치: {device}")
