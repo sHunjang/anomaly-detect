@@ -4,17 +4,15 @@ Autoencoder 학습 및 평가
 - 학습이 끝나면 전체 데이터(정상+이상치)를 넣어보고, 복원 오차가 큰 것을 이상치로 판단
 """
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
-
-from pathlib import Path
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import classification_report, confusion_matrix
-
 from autoencoder import AnomalyAutoencoder
-
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+from torch import nn
 
 DATA_PATH = Path(__file__).parent / "data" / "synthetic_timeseries.csv"
 

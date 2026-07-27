@@ -4,9 +4,8 @@ PyTorch로 구현한 간단한 Autoencoder
 - 정상 데이터로만 학습시켜서, 정상 패턴을 "기억"하게 만드는 것이 목적
 """
 
-from typing import Any
 
-import torch.nn as nn
+from torch import nn
 
 
 class AnomalyAutoencoder(nn.Module):
