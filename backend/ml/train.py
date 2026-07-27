@@ -23,9 +23,12 @@ def build_feature(df: pd.DataFrame) -> np.ndarray:
     """
     Isolation Forest에 넣을 입력값(feature)을 준비
 
-    이전 시각화에서 배운 것처럼, 원본 value만 넣으면 drift/level_shift 같은 이상치는 잘 안 보임.
-    그래서 여기서도 "값 자체"뿐 아니라
-    "직전 값과의 차이(변화량)"까지 같이 넣어서, 모델이 변화 패턴도 참고하게 구성
+    - value_diff: 직전 값과의 차이 -> 스파이크처럼 순간적으로 튀는 패턴 감지용
+    - deviation_from_trend: 최근 30분 평균 대비 현재 값의 차이 -> drift처럼 서서히 흐름에서 
+        벗어나는 패턴을 감지하기 위해 추가
+    - short_vs_long_trend: 단기 흐름(30분) vs 장기 흐름(200분)의 차이 -> drift 감지용
+        drift는 단기 평균도 같이 끌려 올라가서 deviation_from_trend만으로는 안 잡히니,
+        "천천히 움직이는 장기 기준선"과 비교해서 그 차이를 비교
     """
 
     df = df.copy()
@@ -33,9 +36,21 @@ def build_feature(df: pd.DataFrame) -> np.ndarray:
     # diff(): 바로 이전 시점과의 차이. 첫 값은 비교 대상이 없어서 NaN이 되므로 0으로 채움
     df["value_diff"] = df["value"].diff().fillna(0)
 
-    # Isolation Forest == sklearn 모델이라 (샘플 개수, feature 개수) 형태의 2차원 배열로 구성해야 함.
-    # 지금은 feature가 2개(value, value_diff)라서 열이 2개인 배열이 됨
-    features = df[["value", "value_diff"]].values
+    # rolling(window=30): 현재 시점 기준 직전 30개(30분치) 값의 평균을 구함
+    # min_periods=1: 데이터 시작 부분(30개가 안 모인 초반)도 있는 만큼만 평균내서 NaN 방지
+    df["rolling_mean_30"] = df["value"].rolling(window=30, min_periods=1).mean()
+
+    # "지금 값이 최근 흐름(추세)에서 얼마나 벗어났는지" -> drift 탐지의 핵심 feature
+    df["deviation_from_trend"] = df["value"] - df["rolling_mean_30"]
+
+    # 200분 (약 3시간 20분) 평균 - 장기 기준선
+    df["rolling_mean_200"] = df["value"].rolling(window=200, min_periods=1).mean()
+
+    # 단기 평균과 장기 평균의 차이 -> drift처럼 서서히 벌어지는 흐름을 잡기 위한 feature
+    df["short_vs_long_trend"] = df["rolling_mean_30"] - df["rolling_mean_200"]
+
+    # feature 4개짜리 배열로 확장 (기존 3개 -> 4개)
+    features = df[["value", "value_diff", "deviation_from_trend", "short_vs_long_trend"]].values
 
     return features
 
