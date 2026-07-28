@@ -29,8 +29,8 @@ def generate_next_value(t: int) -> float:
     noise = np.random.normal(0, 2)
     value = base + noise
 
-    if np.random.random() < 0.05:   # 5% 확률로 스파이크 발생
-        value += np.random.uniform(3, 5)
+    if np.random.random() < 0.05:
+        value *= np.random.uniform(3, 5)
 
     return round(value, 2)
 
